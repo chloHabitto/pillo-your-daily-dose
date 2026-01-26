@@ -21,10 +21,10 @@
     --primary-foreground: 0 0% 100%;
     --primary-light: 210 70% 95%;
 
-    /* Warm Peach - Friendly, Approachable */
-    --accent: 24 90% 68%;
-    --accent-foreground: 24 90% 20%;
-    --accent-light: 24 90% 95%;
+    /* Soft Mint Green - Fresh, Calming */
+    --accent: 160 50% 55%;
+    --accent-foreground: 160 50% 15%;
+    --accent-light: 160 50% 95%;
 
     --secondary: 210 15% 96%;
     --secondary-foreground: 220 20% 40%;
@@ -95,7 +95,7 @@
     --primary-foreground: 0 0% 100%;
     --primary-light: 210 40% 18%;
 
-    --accent: 24 85% 60%;
+    --accent: 160 45% 50%;
     --accent-foreground: 0 0% 100%;
 
     --secondary: 220 25% 16%;
