@@ -13,16 +13,15 @@ export const TodayButton = ({ isVisible, onClick }: TodayButtonProps) => {
     <button
       onClick={onClick}
       className={cn(
-        "fixed top-4 left-1/2 -translate-x-1/2 z-50",
-        "px-4 py-2 rounded-full",
+        "px-3 py-1.5 rounded-full",
         "bg-primary text-primary-foreground",
-        "shadow-elevated hover:shadow-medium transition-all duration-200",
-        "flex items-center gap-2",
-        "animate-fade-in"
+        "shadow-soft hover:shadow-medium transition-all duration-200",
+        "flex items-center gap-1.5",
+        "animate-fade-in text-xs font-semibold"
       )}
     >
-      <Calendar className="w-4 h-4" />
-      <span className="text-sm font-semibold">Today</span>
+      <Calendar className="w-3.5 h-3.5" />
+      <span>Today</span>
     </button>
   );
 };

@@ -90,15 +90,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40">
-      {/* Today Button */}
-      <TodayButton isVisible={showTodayButton} onClick={handleJumpToToday} />
-
       {/* Header */}
-      <header className="px-5 pt-14 pb-4">
-        <div className="flex items-start justify-between mb-6">
+      <header className="px-4 pt-12 pb-4">
+        <div className="flex items-start justify-between mb-4">
           <div>
             <p className="text-muted-foreground text-sm font-medium">{getGreeting()}</p>
-            <h1 className="text-3xl font-extrabold text-foreground mt-1">
+            <h1 className="text-2xl font-extrabold text-foreground mt-0.5">
               {isViewingToday ? "Today" : selectedDate.toLocaleDateString("en-US", { weekday: "long" })}
             </h1>
           </div>
@@ -110,12 +107,20 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Week Calendar */}
-        <WeekCalendar
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-          onShowTodayButton={setShowTodayButton}
-        />
+        {/* Week Calendar with Today Button */}
+        <div className="space-y-2">
+          <WeekCalendar
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            onShowTodayButton={setShowTodayButton}
+          />
+          {/* Today Button - positioned below calendar */}
+          {showTodayButton && (
+            <div className="flex justify-center pt-1">
+              <TodayButton isVisible={showTodayButton} onClick={handleJumpToToday} />
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Motivation Banner - shows when all done */}
