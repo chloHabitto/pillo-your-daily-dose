@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { WeekCalendar } from "@/components/WeekCalendar";
-import { TodayButton } from "@/components/TodayButton";
 import { MedicineCard } from "@/components/MedicineCard";
 import { TimeSection } from "@/components/TimeSection";
 import { BottomNav } from "@/components/BottomNav";
@@ -31,13 +30,11 @@ const Index = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [medicines, setMedicines] = useState<Medicine[]>(initialMedicines);
   const [activeTab, setActiveTab] = useState<"today" | "pillbox" | "history" | "account">("today");
-  const [showTodayButton, setShowTodayButton] = useState(false);
 
   const handleSelectDosage = (medicineId: string, dosage: string) => {
     setMedicines(prev =>
       prev.map(med => {
         if (med.id === medicineId) {
-          // If same dosage clicked, deselect it
           if (med.selectedDosage === dosage) {
             return { ...med, selectedDosage: undefined };
           }
@@ -61,7 +58,6 @@ const Index = () => {
 
   const handleJumpToToday = () => {
     setSelectedDate(new Date());
-    setShowTodayButton(false);
   };
 
   const selectedMedicines = medicines.filter(m => m.selectedDosage && !m.isTaken);
@@ -108,19 +104,11 @@ const Index = () => {
         </div>
 
         {/* Week Calendar with Today Button */}
-        <div className="space-y-2">
-          <WeekCalendar
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            onShowTodayButton={setShowTodayButton}
-          />
-          {/* Today Button - positioned below calendar */}
-          {showTodayButton && (
-            <div className="flex justify-center pt-1">
-              <TodayButton isVisible={showTodayButton} onClick={handleJumpToToday} />
-            </div>
-          )}
-        </div>
+        <WeekCalendar
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          onJumpToToday={handleJumpToToday}
+        />
       </header>
 
       {/* Motivation Banner - shows when all done */}

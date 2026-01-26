@@ -1,29 +1,29 @@
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks } from "date-fns";
+import { format, addDays, startOfWeek, isSameDay, addWeeks } from "date-fns";
 import { useState, useMemo } from "react";
+import { TodayButton } from "./TodayButton";
+
 interface WeekCalendarProps {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
-  onShowTodayButton: (show: boolean) => void;
+  onJumpToToday: () => void;
 }
+
 export const WeekCalendar = ({
   selectedDate,
   onSelectDate,
-  onShowTodayButton
+  onJumpToToday
 }: WeekCalendarProps) => {
   const today = useMemo(() => new Date(), []);
   const [weekOffset, setWeekOffset] = useState(0);
+
   const currentWeekStart = useMemo(() => {
-    const baseWeekStart = startOfWeek(today, {
-      weekStartsOn: 0
-    });
+    const baseWeekStart = startOfWeek(today, { weekStartsOn: 0 });
     return addWeeks(baseWeekStart, weekOffset);
   }, [today, weekOffset]);
+
   const weekDays = useMemo(() => {
-    return Array.from({
-      length: 7
-    }, (_, i) => {
+    return Array.from({ length: 7 }, (_, i) => {
       const date = addDays(currentWeekStart, i);
       return {
         date,
@@ -34,27 +34,24 @@ export const WeekCalendar = ({
       };
     });
   }, [currentWeekStart, today, selectedDate]);
-  const handlePrevWeek = () => {
-    const newOffset = weekOffset - 1;
-    setWeekOffset(newOffset);
-    onShowTodayButton(newOffset !== 0 || !isSameDay(selectedDate, today));
-  };
-  const handleNextWeek = () => {
-    const newOffset = weekOffset + 1;
-    setWeekOffset(newOffset);
-    onShowTodayButton(newOffset !== 0 || !isSameDay(selectedDate, today));
-  };
+
   const handleSelectDate = (date: Date) => {
     onSelectDate(date);
-    onShowTodayButton(weekOffset !== 0 || !isSameDay(date, today));
   };
+
+  const handleJumpToToday = () => {
+    setWeekOffset(0);
+    onJumpToToday();
+  };
+
+  const showTodayButton = weekOffset !== 0 || !isSameDay(selectedDate, today);
   const monthYear = format(currentWeekStart, "MMMM yyyy");
+
   return <div className="space-y-3">
-      {/* Month/Year Header with Navigation */}
+      {/* Month/Year Header with Today Button */}
       <div className="flex items-center justify-between">
-        
         <span className="text-sm font-semibold text-foreground">{monthYear}</span>
-        
+        <TodayButton isVisible={showTodayButton} onClick={handleJumpToToday} />
       </div>
 
       {/* Week Days */}
