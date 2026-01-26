@@ -49,7 +49,7 @@ export const WeekCalendar = ({
 
   return <div className="space-y-3">
       {/* Month/Year Header with Today Button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between h-7">
         <span className="text-sm font-semibold text-foreground">{monthYear}</span>
         <TodayButton isVisible={showTodayButton} onClick={handleJumpToToday} />
       </div>
