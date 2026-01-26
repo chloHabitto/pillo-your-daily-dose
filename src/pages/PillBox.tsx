@@ -3,6 +3,7 @@ import { Plus, Pill } from "lucide-react";
 import { MedicationGroupCard, MedicationGroup } from "@/components/PillBox/MedicationGroupCard";
 import { LowStockWarning } from "@/components/PillBox/LowStockWarning";
 import { SwipeableCard } from "@/components/PillBox/SwipeableCard";
+import { AddMedicationFlow } from "@/components/PillBox/AddMedication";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -57,6 +58,7 @@ const initialMedications: MedicationGroup[] = [
 
 const PillBox = () => {
   const [medications, setMedications] = useState<MedicationGroup[]>(initialMedications);
+  const [isAddFlowOpen, setIsAddFlowOpen] = useState(false);
 
   const lowStockMeds = medications
     .filter((m) => m.hasLowStock)
@@ -72,8 +74,15 @@ const PillBox = () => {
   };
 
   const handleAddMedication = () => {
-    // TODO: Navigate to add medication flow
-    console.log("Add medication");
+    setIsAddFlowOpen(true);
+  };
+
+  const handleSaveMedication = (medication: Omit<MedicationGroup, "id">) => {
+    const newMedication: MedicationGroup = {
+      ...medication,
+      id: crypto.randomUUID(),
+    };
+    setMedications((prev) => [...prev, newMedication]);
   };
 
   return (
@@ -135,6 +144,12 @@ const PillBox = () => {
           </div>
         )}
       </main>
+
+      <AddMedicationFlow
+        open={isAddFlowOpen}
+        onOpenChange={setIsAddFlowOpen}
+        onSave={handleSaveMedication}
+      />
 
       <BottomNav />
     </div>
