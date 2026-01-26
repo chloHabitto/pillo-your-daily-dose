@@ -7,64 +7,69 @@
 @layer base {
   :root {
     /* Pillo - Friendly Health App Palette */
-    --background: 40 33% 98%;
-    --foreground: 220 20% 20%;
+    --background: 210 20% 98%;
+    --foreground: 220 25% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 20%;
+    --card-foreground: 220 25% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 20%;
+    --popover-foreground: 220 25% 18%;
 
-    /* Teal - Trust, Calm, Health */
-    --primary: 174 58% 45%;
+    /* Soft Blue - Trust, Calm, Medical */
+    --primary: 210 70% 52%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 174 58% 92%;
+    --primary-light: 210 70% 95%;
 
-    /* Warm Coral - Action, Care */
-    --accent: 12 76% 61%;
-    --accent-foreground: 0 0% 100%;
-    --accent-light: 12 76% 95%;
+    /* Warm Peach - Friendly, Approachable */
+    --accent: 24 90% 68%;
+    --accent-foreground: 24 90% 20%;
+    --accent-light: 24 90% 95%;
 
-    --secondary: 220 14% 96%;
+    --secondary: 210 15% 96%;
     --secondary-foreground: 220 20% 40%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 210 15% 96%;
+    --muted-foreground: 220 12% 50%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 14% 90%;
-    --input: 220 14% 90%;
-    --ring: 174 58% 45%;
+    --border: 210 15% 90%;
+    --input: 210 15% 90%;
+    --ring: 210 70% 52%;
 
     --radius: 1rem;
 
     /* Success green for taken meds */
-    --success: 152 60% 45%;
+    --success: 158 60% 42%;
     --success-foreground: 0 0% 100%;
-    --success-light: 152 60% 94%;
+    --success-light: 158 60% 94%;
 
     /* Dosage chip colors */
-    --chip: 220 14% 94%;
+    --chip: 210 15% 94%;
     --chip-foreground: 220 20% 35%;
-    --chip-selected: 174 58% 45%;
+    --chip-selected: 210 70% 52%;
     --chip-selected-foreground: 0 0% 100%;
 
     /* Card states */
-    --card-selected: 174 58% 97%;
-    --card-selected-border: 174 58% 65%;
+    --card-selected: 210 70% 97%;
+    --card-selected-border: 210 70% 65%;
 
     /* Navigation */
     --nav-background: 0 0% 100%;
-    --nav-active: 174 58% 45%;
-    --nav-inactive: 220 10% 60%;
+    --nav-active: 210 70% 52%;
+    --nav-inactive: 220 12% 55%;
 
     /* Shadows */
-    --shadow-soft: 0 2px 8px -2px hsl(220 20% 20% / 0.08);
-    --shadow-medium: 0 4px 16px -4px hsl(220 20% 20% / 0.12);
-    --shadow-elevated: 0 8px 32px -8px hsl(220 20% 20% / 0.15);
+    --shadow-soft: 0 2px 8px -2px hsl(220 25% 18% / 0.06);
+    --shadow-medium: 0 4px 16px -4px hsl(220 25% 18% / 0.10);
+    --shadow-elevated: 0 8px 32px -8px hsl(220 25% 18% / 0.14);
+
+    /* Warning - Soft Amber */
+    --warning: 38 92% 55%;
+    --warning-foreground: 38 92% 20%;
+    --warning-light: 38 92% 95%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -77,50 +82,54 @@
   }
 
   .dark {
-    --background: 220 20% 10%;
-    --foreground: 40 33% 98%;
+    --background: 220 25% 8%;
+    --foreground: 210 20% 98%;
 
-    --card: 220 20% 14%;
-    --card-foreground: 40 33% 98%;
+    --card: 220 25% 12%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 220 20% 14%;
-    --popover-foreground: 40 33% 98%;
+    --popover: 220 25% 12%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 174 58% 50%;
+    --primary: 210 70% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 174 30% 20%;
+    --primary-light: 210 40% 18%;
 
-    --accent: 12 76% 55%;
+    --accent: 24 85% 60%;
     --accent-foreground: 0 0% 100%;
 
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 220 14% 80%;
+    --secondary: 220 25% 16%;
+    --secondary-foreground: 210 15% 80%;
 
-    --muted: 220 20% 18%;
-    --muted-foreground: 220 14% 60%;
+    --muted: 220 25% 16%;
+    --muted-foreground: 210 15% 55%;
 
-    --destructive: 0 62% 50%;
+    --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 174 58% 50%;
+    --border: 220 25% 18%;
+    --input: 220 25% 18%;
+    --ring: 210 70% 55%;
 
-    --success: 152 60% 50%;
+    --success: 158 55% 45%;
     --success-foreground: 0 0% 100%;
-    --success-light: 152 30% 18%;
+    --success-light: 158 35% 16%;
 
-    --chip: 220 20% 22%;
-    --chip-foreground: 220 14% 75%;
-    --chip-selected: 174 58% 50%;
+    --chip: 220 25% 20%;
+    --chip-foreground: 210 15% 75%;
+    --chip-selected: 210 70% 55%;
     --chip-selected-foreground: 0 0% 100%;
 
-    --card-selected: 174 30% 15%;
-    --card-selected-border: 174 58% 45%;
+    --card-selected: 210 40% 14%;
+    --card-selected-border: 210 70% 50%;
 
-    --nav-background: 220 20% 12%;
-    --nav-active: 174 58% 50%;
-    --nav-inactive: 220 14% 50%;
+    --nav-background: 220 25% 10%;
+    --nav-active: 210 70% 55%;
+    --nav-inactive: 210 15% 50%;
+
+    --warning: 38 85% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 38 40% 16%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

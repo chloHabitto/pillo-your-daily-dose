@@ -70,35 +70,35 @@ export const WeekCalendar = ({ selectedDate, onSelectDate, onShowTodayButton }: 
       </div>
 
       {/* Week Days */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="grid grid-cols-7 gap-1">
         {weekDays.map((day) => (
           <button
             key={day.date.toISOString()}
             onClick={() => handleSelectDate(day.date)}
             className={cn(
-              "flex flex-col items-center min-w-[52px] py-3 px-2 rounded-2xl transition-all duration-200",
+              "flex flex-col items-center py-2.5 px-1 rounded-xl transition-all duration-200",
               day.isSelected
                 ? "bg-primary text-primary-foreground shadow-medium"
                 : "bg-card hover:bg-secondary"
             )}
           >
             <span className={cn(
-              "text-xs font-medium uppercase tracking-wide",
+              "text-[10px] font-medium uppercase tracking-wide",
               day.isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
             )}>
               {day.dayName}
             </span>
             <span className={cn(
-              "text-lg font-bold mt-1",
+              "text-base font-bold mt-0.5",
               day.isSelected ? "text-primary-foreground" : "text-foreground"
             )}>
               {day.dayNumber}
             </span>
             {day.isToday && !day.isSelected && (
-              <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary mt-0.5" />
             )}
             {day.isToday && day.isSelected && (
-              <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground mt-1" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground mt-0.5" />
             )}
           </button>
         ))}
