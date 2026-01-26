@@ -95,12 +95,7 @@ const Index = () => {
               {isViewingToday ? "Today" : selectedDate.toLocaleDateString("en-US", { weekday: "long" })}
             </h1>
           </div>
-          <div className="flex flex-col items-center">
-            <ProgressRing progress={progressPercentage} />
-            <span className="text-xs text-muted-foreground mt-1">
-              {takenCount}/{totalMedicines}
-            </span>
-          </div>
+          <ProgressRing progress={progressPercentage} />
         </div>
 
         {/* Week Calendar with Today Button */}
