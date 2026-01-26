@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { DaySelector } from "@/components/DaySelector";
+import { WeekCalendar } from "@/components/WeekCalendar";
+import { TodayButton } from "@/components/TodayButton";
 import { MedicineCard } from "@/components/MedicineCard";
 import { TimeSection } from "@/components/TimeSection";
 import { BottomNav } from "@/components/BottomNav";
 import { ProgressRing } from "@/components/ProgressRing";
 import { LogButton } from "@/components/LogButton";
 import { Sparkles } from "lucide-react";
+import { isSameDay } from "date-fns";
 
 interface Medicine {
   id: string;
@@ -25,20 +27,11 @@ const initialMedicines: Medicine[] = [
   { id: "5", name: "Melatonin", dosages: ["3mg", "5mg"], isTaken: false, color: "purple", timeOfDay: "Evening" },
 ];
 
-const weekDays = [
-  { day: "Sun", date: 25, isToday: false },
-  { day: "Mon", date: 26, isToday: true },
-  { day: "Tue", date: 27, isToday: false },
-  { day: "Wed", date: 28, isToday: false },
-  { day: "Thu", date: 29, isToday: false },
-  { day: "Fri", date: 30, isToday: false },
-  { day: "Sat", date: 31, isToday: false },
-];
-
 const Index = () => {
-  const [selectedDate, setSelectedDate] = useState(26);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [medicines, setMedicines] = useState<Medicine[]>(initialMedicines);
   const [activeTab, setActiveTab] = useState<"today" | "pillbox" | "history" | "account">("today");
+  const [showTodayButton, setShowTodayButton] = useState(false);
 
   const handleSelectDosage = (medicineId: string, dosage: string) => {
     setMedicines(prev =>
@@ -66,6 +59,11 @@ const Index = () => {
     );
   };
 
+  const handleJumpToToday = () => {
+    setSelectedDate(new Date());
+    setShowTodayButton(false);
+  };
+
   const selectedMedicines = medicines.filter(m => m.selectedDosage && !m.isTaken);
   const takenCount = medicines.filter(m => m.isTaken).length;
   const totalMedicines = medicines.length;
@@ -87,15 +85,22 @@ const Index = () => {
     return "Good Evening";
   };
 
+  // Check if viewing today
+  const isViewingToday = isSameDay(selectedDate, new Date());
+
   return (
     <div className="min-h-screen bg-background pb-40">
+      {/* Today Button */}
+      <TodayButton isVisible={showTodayButton} onClick={handleJumpToToday} />
+
       {/* Header */}
       <header className="px-5 pt-14 pb-4">
         <div className="flex items-start justify-between mb-6">
           <div>
             <p className="text-muted-foreground text-sm font-medium">{getGreeting()}</p>
-            <h1 className="text-3xl font-extrabold text-foreground mt-1">Today</h1>
-            <p className="text-muted-foreground font-medium mt-1">January 2026</p>
+            <h1 className="text-3xl font-extrabold text-foreground mt-1">
+              {isViewingToday ? "Today" : selectedDate.toLocaleDateString("en-US", { weekday: "long" })}
+            </h1>
           </div>
           <div className="flex flex-col items-center">
             <ProgressRing progress={progressPercentage} />
@@ -105,11 +110,11 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Week Selector */}
-        <DaySelector
-          days={weekDays}
+        {/* Week Calendar */}
+        <WeekCalendar
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
+          onShowTodayButton={setShowTodayButton}
         />
       </header>
 
