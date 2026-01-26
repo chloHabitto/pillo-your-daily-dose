@@ -1,7 +1,10 @@
 import { cn } from "@/lib/utils";
-import { format, addDays, startOfWeek, isSameDay, addWeeks } from "date-fns";
+import { format, addDays, startOfWeek, isSameDay, addWeeks, differenceInWeeks } from "date-fns";
 import { useState, useMemo } from "react";
+import { ChevronDown } from "lucide-react";
 import { TodayButton } from "./TodayButton";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 interface WeekCalendarProps {
   selectedDate: Date;
@@ -16,6 +19,7 @@ export const WeekCalendar = ({
 }: WeekCalendarProps) => {
   const today = useMemo(() => new Date(), []);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const currentWeekStart = useMemo(() => {
     const baseWeekStart = startOfWeek(today, { weekStartsOn: 0 });
@@ -39,6 +43,17 @@ export const WeekCalendar = ({
     onSelectDate(date);
   };
 
+  const handleCalendarSelect = (date: Date | undefined) => {
+    if (date) {
+      const baseWeekStart = startOfWeek(today, { weekStartsOn: 0 });
+      const selectedWeekStart = startOfWeek(date, { weekStartsOn: 0 });
+      const newOffset = differenceInWeeks(selectedWeekStart, baseWeekStart);
+      setWeekOffset(newOffset);
+      onSelectDate(date);
+      setCalendarOpen(false);
+    }
+  };
+
   const handleJumpToToday = () => {
     setWeekOffset(0);
     onJumpToToday();
@@ -50,7 +65,23 @@ export const WeekCalendar = ({
   return <div className="space-y-3">
       {/* Month/Year Header with Today Button */}
       <div className="flex items-center justify-between h-7">
-        <span className="text-sm font-semibold text-foreground">{monthYear}</span>
+        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <PopoverTrigger asChild>
+            <button className="flex items-center gap-1 text-sm font-semibold text-foreground hover:text-primary transition-colors">
+              {monthYear}
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleCalendarSelect}
+              initialFocus
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
         <TodayButton isVisible={showTodayButton} onClick={handleJumpToToday} />
       </div>
 
