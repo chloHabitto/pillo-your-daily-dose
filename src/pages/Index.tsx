@@ -4,7 +4,7 @@ import { MedicineCard } from "@/components/MedicineCard";
 import { TimeSection } from "@/components/TimeSection";
 import { BottomNav } from "@/components/BottomNav";
 import { ProgressRing } from "@/components/ProgressRing";
-import { LogButton } from "@/components/LogButton";
+import { DosePickerSheet } from "@/components/DosePickerSheet";
 import { Sparkles } from "lucide-react";
 import { isSameDay } from "date-fns";
 
@@ -12,47 +12,58 @@ interface Medicine {
   id: string;
   name: string;
   dosages: string[];
-  selectedDosage?: string;
-  isTaken: boolean;
+  takenDosage?: string;
+  status: "pending" | "taken" | "skipped";
   color?: string;
   timeOfDay: "Morning" | "Afternoon" | "Evening";
 }
 
 const initialMedicines: Medicine[] = [
-  { id: "1", name: "Concerta", dosages: ["18mg", "32mg"], isTaken: false, color: "blue", timeOfDay: "Morning" },
-  { id: "2", name: "Bufrion", dosages: ["100mg"], isTaken: false, color: "pink", timeOfDay: "Morning" },
-  { id: "3", name: "Folic Acid", dosages: ["18mg"], isTaken: false, color: "yellow", timeOfDay: "Morning" },
-  { id: "4", name: "Vitamin D", dosages: ["1000IU"], isTaken: false, color: "green", timeOfDay: "Afternoon" },
-  { id: "5", name: "Melatonin", dosages: ["3mg", "5mg"], isTaken: false, color: "purple", timeOfDay: "Evening" },
+  { id: "1", name: "Concerta", dosages: ["18mg", "32mg"], status: "pending", color: "blue", timeOfDay: "Morning" },
+  { id: "2", name: "Bufrion", dosages: ["100mg"], status: "pending", color: "pink", timeOfDay: "Morning" },
+  { id: "3", name: "Folic Acid", dosages: ["18mg"], status: "pending", color: "yellow", timeOfDay: "Morning" },
+  { id: "4", name: "Vitamin D", dosages: ["1000IU"], status: "pending", color: "green", timeOfDay: "Afternoon" },
+  { id: "5", name: "Melatonin", dosages: ["3mg", "5mg"], status: "pending", color: "purple", timeOfDay: "Evening" },
 ];
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [medicines, setMedicines] = useState<Medicine[]>(initialMedicines);
   const [activeTab, setActiveTab] = useState<"today" | "pillbox" | "history" | "account">("today");
+  const [dosePickerOpen, setDosePickerOpen] = useState(false);
+  const [selectedMedicineForPicker, setSelectedMedicineForPicker] = useState<Medicine | null>(null);
 
-  const handleSelectDosage = (medicineId: string, dosage: string) => {
+  const handleLog = (medicineId: string) => {
+    const medicine = medicines.find(m => m.id === medicineId);
+    if (!medicine) return;
+
+    // If single dosage, log directly
+    if (medicine.dosages.length === 1) {
+      logMedicineWithDosage(medicineId, medicine.dosages[0]);
+    } else {
+      // Multiple dosages - open picker
+      setSelectedMedicineForPicker(medicine);
+      setDosePickerOpen(true);
+    }
+  };
+
+  const logMedicineWithDosage = (medicineId: string, dosage: string) => {
     setMedicines(prev =>
-      prev.map(med => {
-        if (med.id === medicineId) {
-          if (med.selectedDosage === dosage) {
-            return { ...med, selectedDosage: undefined };
-          }
-          return { ...med, selectedDosage: dosage };
-        }
-        return med;
-      })
+      prev.map(med =>
+        med.id === medicineId
+          ? { ...med, status: "taken" as const, takenDosage: dosage }
+          : med
+      )
     );
   };
 
-  const handleLogTaken = () => {
+  const handleSkip = (medicineId: string) => {
     setMedicines(prev =>
-      prev.map(med => {
-        if (med.selectedDosage && !med.isTaken) {
-          return { ...med, isTaken: true };
-        }
-        return med;
-      })
+      prev.map(med =>
+        med.id === medicineId
+          ? { ...med, status: "skipped" as const }
+          : med
+      )
     );
   };
 
@@ -60,8 +71,7 @@ const Index = () => {
     setSelectedDate(new Date());
   };
 
-  const selectedMedicines = medicines.filter(m => m.selectedDosage && !m.isTaken);
-  const takenCount = medicines.filter(m => m.isTaken).length;
+  const takenCount = medicines.filter(m => m.status === "taken").length;
   const totalMedicines = medicines.length;
   const progressPercentage = (takenCount / totalMedicines) * 100;
 
@@ -70,7 +80,7 @@ const Index = () => {
   };
 
   const getTakenCountByTime = (time: "Morning" | "Afternoon" | "Evening") => {
-    return medicines.filter(m => m.timeOfDay === time && m.isTaken).length;
+    return medicines.filter(m => m.timeOfDay === time && m.status === "taken").length;
   };
 
   // Get greeting based on time of day
@@ -132,7 +142,8 @@ const Index = () => {
               <MedicineCard
                 key={medicine.id}
                 medicine={medicine}
-                onSelectDosage={handleSelectDosage}
+                onLog={handleLog}
+                onSkip={handleSkip}
               />
             ))}
           </TimeSection>
@@ -149,7 +160,8 @@ const Index = () => {
               <MedicineCard
                 key={medicine.id}
                 medicine={medicine}
-                onSelectDosage={handleSelectDosage}
+                onLog={handleLog}
+                onSkip={handleSkip}
               />
             ))}
           </TimeSection>
@@ -166,19 +178,27 @@ const Index = () => {
               <MedicineCard
                 key={medicine.id}
                 medicine={medicine}
-                onSelectDosage={handleSelectDosage}
+                onLog={handleLog}
+                onSkip={handleSkip}
               />
             ))}
           </TimeSection>
         )}
       </main>
 
-      {/* Log Button */}
-      <LogButton
-        isVisible={selectedMedicines.length > 0}
-        selectedCount={selectedMedicines.length}
-        onClick={handleLogTaken}
-      />
+      {/* Dose Picker Sheet */}
+      {selectedMedicineForPicker && (
+        <DosePickerSheet
+          open={dosePickerOpen}
+          onOpenChange={setDosePickerOpen}
+          medicineName={selectedMedicineForPicker.name}
+          dosages={selectedMedicineForPicker.dosages}
+          onSelectDosage={(dosage) => {
+            logMedicineWithDosage(selectedMedicineForPicker.id, dosage);
+            setSelectedMedicineForPicker(null);
+          }}
+        />
+      )}
 
       {/* Bottom Navigation */}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
