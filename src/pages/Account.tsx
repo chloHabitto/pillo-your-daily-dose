@@ -1,17 +1,15 @@
 import { BottomNav } from "@/components/BottomNav";
 import { User, Moon, Sun, Monitor, Bell, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-
-type AppearanceMode = "light" | "dark" | "auto";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const Account = () => {
-  const [appearance, setAppearance] = useState<AppearanceMode>("auto");
+  const { theme, setTheme } = useTheme();
 
   const appearanceOptions = [
-    { id: "light" as AppearanceMode, label: "Light", icon: Sun },
-    { id: "dark" as AppearanceMode, label: "Dark", icon: Moon },
-    { id: "auto" as AppearanceMode, label: "Auto", icon: Monitor },
+    { id: "light" as const, label: "Light", icon: Sun },
+    { id: "dark" as const, label: "Dark", icon: Moon },
+    { id: "auto" as const, label: "Auto", icon: Monitor },
   ];
 
   return (
@@ -44,11 +42,11 @@ const Account = () => {
           <div className="flex gap-2">
             {appearanceOptions.map((option) => {
               const Icon = option.icon;
-              const isSelected = appearance === option.id;
+              const isSelected = theme === option.id;
               return (
                 <button
                   key={option.id}
-                  onClick={() => setAppearance(option.id)}
+                  onClick={() => setTheme(option.id)}
                   className={cn(
                     "flex-1 flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200",
                     isSelected
