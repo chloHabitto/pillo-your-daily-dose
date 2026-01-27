@@ -1,19 +1,20 @@
 import { cn } from "@/lib/utils";
-import { DosageChip } from "./DosageChip";
-import { Pill, Check } from "lucide-react";
+import { Pill, Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Medicine {
   id: string;
   name: string;
   dosages: string[];
-  selectedDosage?: string;
-  isTaken: boolean;
+  takenDosage?: string;
+  status: "pending" | "taken" | "skipped";
   color?: string;
 }
 
 interface MedicineCardProps {
   medicine: Medicine;
-  onSelectDosage: (medicineId: string, dosage: string) => void;
+  onLog: (medicineId: string) => void;
+  onSkip: (medicineId: string) => void;
 }
 
 const pillColors: Record<string, string> = {
@@ -24,30 +25,33 @@ const pillColors: Record<string, string> = {
   purple: "text-purple-500",
 };
 
-export const MedicineCard = ({ medicine, onSelectDosage }: MedicineCardProps) => {
-  const hasMultipleDosages = medicine.dosages.length > 1;
-  const isSelected = !!medicine.selectedDosage;
+export const MedicineCard = ({ medicine, onLog, onSkip }: MedicineCardProps) => {
   const pillColor = pillColors[medicine.color || "blue"] || "text-primary";
+  const isTaken = medicine.status === "taken";
+  const isSkipped = medicine.status === "skipped";
+  const isPending = medicine.status === "pending";
 
   return (
     <div
       className={cn(
         "relative p-4 rounded-2xl transition-all duration-300 animate-fade-in",
-        medicine.isTaken
+        isTaken
           ? "bg-success-light border-2 border-success/30"
-          : isSelected
-          ? "bg-card-selected border-2 border-card-selected-border shadow-medium"
-          : "bg-card border-2 border-transparent shadow-soft hover:shadow-medium"
+          : isSkipped
+          ? "bg-muted/50 border-2 border-muted"
+          : "bg-card border-2 border-transparent shadow-soft"
       )}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         {/* Pill Icon */}
         <div className={cn(
-          "p-2.5 rounded-xl",
-          medicine.isTaken ? "bg-success/20" : "bg-primary-light"
+          "p-2.5 rounded-xl shrink-0",
+          isTaken ? "bg-success/20" : isSkipped ? "bg-muted" : "bg-primary-light"
         )}>
-          {medicine.isTaken ? (
+          {isTaken ? (
             <Check className="w-5 h-5 text-success" />
+          ) : isSkipped ? (
+            <X className="w-5 h-5 text-muted-foreground" />
           ) : (
             <Pill className={cn("w-5 h-5", pillColor)} />
           )}
@@ -55,40 +59,58 @@ export const MedicineCard = ({ medicine, onSelectDosage }: MedicineCardProps) =>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className={cn(
-              "font-bold text-lg",
-              medicine.isTaken ? "text-success" : "text-foreground"
-            )}>
-              {medicine.name}
-            </h3>
-            {medicine.isTaken && (
-              <span className="text-xs font-medium text-success bg-success/10 px-2 py-1 rounded-full">
-                Taken ✓
-              </span>
-            )}
-          </div>
-
-          {/* Dosage Options */}
-          <div className="flex flex-wrap gap-2">
-            {medicine.dosages.map((dosage) => (
-              <DosageChip
-                key={dosage}
-                dosage={dosage}
-                isSelected={medicine.selectedDosage === dosage}
-                isTaken={medicine.isTaken && medicine.selectedDosage === dosage}
-                onClick={() => !medicine.isTaken && onSelectDosage(medicine.id, dosage)}
-              />
-            ))}
-          </div>
-
-          {/* Helper text for multiple dosages */}
-          {hasMultipleDosages && !medicine.isTaken && !isSelected && (
-            <p className="text-xs text-muted-foreground mt-2">
-              Tap to select today's dosage
-            </p>
-          )}
+          <h3 className={cn(
+            "font-bold text-lg truncate",
+            isTaken ? "text-success" : isSkipped ? "text-muted-foreground" : "text-foreground"
+          )}>
+            {medicine.name}
+          </h3>
+          
+          {/* Dosage display */}
+          <p className={cn(
+            "text-sm",
+            isTaken ? "text-success/80" : isSkipped ? "text-muted-foreground" : "text-muted-foreground"
+          )}>
+            {isTaken && medicine.takenDosage
+              ? `${medicine.takenDosage} taken`
+              : isSkipped
+              ? "Skipped"
+              : medicine.dosages.join(" / ")}
+          </p>
         </div>
+
+        {/* Action Buttons */}
+        {isPending && (
+          <div className="flex gap-2 shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => onSkip(medicine.id)}
+            >
+              Skip
+            </Button>
+            <Button
+              size="sm"
+              className="bg-success hover:bg-success/90 text-success-foreground"
+              onClick={() => onLog(medicine.id)}
+            >
+              Log
+            </Button>
+          </div>
+        )}
+
+        {/* Status badge for taken/skipped */}
+        {isTaken && (
+          <span className="text-xs font-medium text-success bg-success/10 px-2 py-1 rounded-full shrink-0">
+            ✓ Taken
+          </span>
+        )}
+        {isSkipped && (
+          <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full shrink-0">
+            Skipped
+          </span>
+        )}
       </div>
     </div>
   );
