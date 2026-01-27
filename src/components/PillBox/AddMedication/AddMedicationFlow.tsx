@@ -3,12 +3,15 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import { MedicationFormData, StrengthEntry } from "./types";
+import { MedicationFormData, getInitialFormData, PILL_SHAPES } from "./types";
 import { MedicationNameStep } from "./MedicationNameStep";
-import { MedicationFormStep } from "./MedicationFormStep";
 import { MedicationStrengthStep } from "./MedicationStrengthStep";
-import { MedicationColorStep } from "./MedicationColorStep";
-import { MedicationReviewStep } from "./MedicationReviewStep";
+import { DosingTypeStep } from "./DosingTypeStep";
+import { ScheduleStep } from "./ScheduleStep";
+import { MedicationFormStep } from "./MedicationFormStep";
+import { ShapeSelectionStep } from "./ShapeSelectionStep";
+import { ColorSelectionStep } from "./ColorSelectionStep";
+import { ReviewStep } from "./ReviewStep";
 import { MedicationGroup } from "../MedicationGroupCard";
 
 interface AddMedicationFlowProps {
@@ -17,21 +20,7 @@ interface AddMedicationFlowProps {
   onSave: (medication: Omit<MedicationGroup, "id">) => void;
 }
 
-const STEPS = ["Name", "Form", "Strength", "Color", "Review"];
-
-const initialStrength: StrengthEntry = {
-  id: crypto.randomUUID(),
-  value: "",
-  unit: "mg",
-};
-
-const initialFormData: MedicationFormData = {
-  name: "",
-  form: "",
-  customForm: "",
-  strengths: [initialStrength],
-  color: "blue",
-};
+const STEPS = ["Name", "Strength", "Dosing", "Schedule", "Form", "Shape", "Color", "Review"];
 
 export const AddMedicationFlow = ({
   open,
@@ -39,7 +28,7 @@ export const AddMedicationFlow = ({
   onSave,
 }: AddMedicationFlowProps) => {
   const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState<MedicationFormData>(initialFormData);
+  const [formData, setFormData] = useState<MedicationFormData>(getInitialFormData());
 
   const isFirstStep = step === 0;
   const isLastStep = step === STEPS.length - 1;
@@ -48,26 +37,49 @@ export const AddMedicationFlow = ({
     switch (step) {
       case 0: // Name
         return formData.name.trim().length > 0;
-      case 1: // Form
+      case 1: // Strength
+        return true; // Can be skipped
+      case 2: // Dosing Type
+        if (formData.dosingType === "fixed") {
+          return formData.selectedStrengths.length > 0 || formData.strengths.every(s => !s.value.trim());
+        }
+        return formData.selectedStrengths.length > 0 || formData.strengths.every(s => !s.value.trim());
+      case 3: // Schedule
+        if (formData.schedule.type === "as_needed") return true;
+        if (formData.schedule.timeMode === "specific") {
+          return formData.schedule.specificTimes.length > 0;
+        }
+        return formData.schedule.timeFrames.length > 0;
+      case 4: // Form
         if (formData.form === "Other") {
-          return formData.customForm?.trim().length > 0;
+          return formData.customForm.trim().length > 0;
         }
         return formData.form.length > 0;
-      case 2: // Strength
-        return formData.strengths.some((s) => s.value.trim().length > 0);
-      case 3: // Color
-        return formData.color.length > 0;
-      case 4: // Review
+      case 5: // Shape
+        return true; // Can be skipped
+      case 6: // Color
+        return true; // Can be skipped
+      case 7: // Review
         return true;
       default:
         return false;
     }
   };
 
+  const canSkip = (): boolean => {
+    return [1, 2, 3, 5, 6].includes(step);
+  };
+
   const handleNext = () => {
     if (isLastStep) {
       handleSave();
     } else {
+      setStep((prev) => prev + 1);
+    }
+  };
+
+  const handleSkip = () => {
+    if (!isLastStep) {
       setStep((prev) => prev + 1);
     }
   };
@@ -80,7 +92,7 @@ export const AddMedicationFlow = ({
 
   const handleClose = () => {
     setStep(0);
-    setFormData(initialFormData);
+    setFormData(getInitialFormData());
     onOpenChange(false);
   };
 
@@ -99,7 +111,7 @@ export const AddMedicationFlow = ({
       form: displayForm,
       totalStock: 0,
       hasLowStock: false,
-      color: formData.color,
+      color: formData.colorLeft,
     };
 
     onSave(medication);
@@ -111,6 +123,17 @@ export const AddMedicationFlow = ({
     value: MedicationFormData[K]
   ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // Handle shape change - update two-tone default
+  const handleShapeChange = (shapeName: string) => {
+    updateFormData("shape", shapeName);
+    const shapeConfig = PILL_SHAPES.find((s) => s.name === shapeName);
+    if (shapeConfig?.twoTone && !formData.colorRight) {
+      updateFormData("colorRight", "white");
+    } else if (!shapeConfig?.twoTone) {
+      updateFormData("colorRight", null);
+    }
   };
 
   return (
@@ -125,8 +148,8 @@ export const AddMedicationFlow = ({
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
           
-          <span className="text-sm font-medium text-muted-foreground">
-            Step {step + 1} of {STEPS.length}
+          <span className="text-sm font-medium text-foreground">
+            {formData.name || "Add Medication"}
           </span>
           
           <div className="w-9" /> {/* Spacer for alignment */}
@@ -134,7 +157,7 @@ export const AddMedicationFlow = ({
 
         {/* Progress Bar */}
         <div className="px-4 pt-4">
-          <div className="flex gap-1.5">
+          <div className="flex gap-1">
             {STEPS.map((_, index) => (
               <div
                 key={index}
@@ -145,6 +168,9 @@ export const AddMedicationFlow = ({
               />
             ))}
           </div>
+          <p className="text-xs text-muted-foreground text-center mt-2">
+            Step {step + 1} of {STEPS.length}
+          </p>
         </div>
 
         {/* Content */}
@@ -156,27 +182,60 @@ export const AddMedicationFlow = ({
             />
           )}
           {step === 1 && (
+            <MedicationStrengthStep
+              strengths={formData.strengths}
+              medicationName={formData.name}
+              onChange={(strengths) => updateFormData("strengths", strengths)}
+            />
+          )}
+          {step === 2 && (
+            <DosingTypeStep
+              dosingType={formData.dosingType}
+              strengths={formData.strengths}
+              selectedStrengths={formData.selectedStrengths}
+              fixedQuantity={formData.fixedQuantity}
+              onDosingTypeChange={(type) => updateFormData("dosingType", type)}
+              onSelectedStrengthsChange={(ids) => updateFormData("selectedStrengths", ids)}
+              onFixedQuantityChange={(qty) => updateFormData("fixedQuantity", qty)}
+            />
+          )}
+          {step === 3 && (
+            <ScheduleStep
+              schedule={formData.schedule}
+              onChange={(schedule) => updateFormData("schedule", schedule)}
+            />
+          )}
+          {step === 4 && (
             <MedicationFormStep
               form={formData.form}
-              customForm={formData.customForm || ""}
+              customForm={formData.customForm}
               onChange={(form) => updateFormData("form", form)}
               onCustomFormChange={(customForm) => updateFormData("customForm", customForm)}
             />
           )}
-          {step === 2 && (
-            <MedicationStrengthStep
-              strengths={formData.strengths}
-              onChange={(strengths) => updateFormData("strengths", strengths)}
+          {step === 5 && (
+            <ShapeSelectionStep
+              shape={formData.shape}
+              showLine={formData.showLine}
+              colorLeft={formData.colorLeft}
+              colorRight={formData.colorRight}
+              onShapeChange={handleShapeChange}
+              onShowLineChange={(showLine) => updateFormData("showLine", showLine)}
             />
           )}
-          {step === 3 && (
-            <MedicationColorStep
-              color={formData.color}
-              onChange={(color) => updateFormData("color", color)}
+          {step === 6 && (
+            <ColorSelectionStep
+              shape={formData.shape}
+              colorLeft={formData.colorLeft}
+              colorRight={formData.colorRight}
+              colorBackground={formData.colorBackground}
+              onColorLeftChange={(color) => updateFormData("colorLeft", color)}
+              onColorRightChange={(color) => updateFormData("colorRight", color)}
+              onColorBackgroundChange={(color) => updateFormData("colorBackground", color)}
             />
           )}
-          {step === 4 && (
-            <MedicationReviewStep data={formData} />
+          {step === 7 && (
+            <ReviewStep data={formData} />
           )}
         </div>
 
@@ -186,18 +245,27 @@ export const AddMedicationFlow = ({
             <Button
               variant="outline"
               onClick={handleBack}
-              className="flex-1 h-12 rounded-xl"
+              className="h-12 rounded-xl px-4"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Back
             </Button>
           )}
+          {canSkip() && !canProceed() && (
+            <Button
+              variant="ghost"
+              onClick={handleSkip}
+              className="h-12 rounded-xl flex-1"
+            >
+              Skip
+            </Button>
+          )}
           <Button
             onClick={handleNext}
-            disabled={!canProceed()}
+            disabled={!canProceed() && !canSkip()}
             className={cn(
               "h-12 rounded-xl",
-              isFirstStep ? "w-full" : "flex-1"
+              isFirstStep || !canSkip() ? "flex-1" : "flex-1"
             )}
           >
             {isLastStep ? "Save Medication" : "Next"}
