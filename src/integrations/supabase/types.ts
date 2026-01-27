@@ -14,7 +14,223 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      dose_configurations: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          end_date: string | null
+          group_id: string
+          id: string
+          is_flexible: boolean
+          medication_id: string
+          quantity: number
+          schedule_data: Json | null
+          schedule_type: Database["public"]["Enums"]["schedule_type"]
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          end_date?: string | null
+          group_id: string
+          id?: string
+          is_flexible?: boolean
+          medication_id: string
+          quantity?: number
+          schedule_data?: Json | null
+          schedule_type?: Database["public"]["Enums"]["schedule_type"]
+          start_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          end_date?: string | null
+          group_id?: string
+          id?: string
+          is_flexible?: boolean
+          medication_id?: string
+          quantity?: number
+          schedule_data?: Json | null
+          schedule_type?: Database["public"]["Enums"]["schedule_type"]
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dose_configurations_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "medication_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dose_configurations_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intake_logs: {
+        Row: {
+          dose_configuration_id: string
+          id: string
+          status: Database["public"]["Enums"]["intake_status"]
+          taken_at: string
+          user_id: string
+        }
+        Insert: {
+          dose_configuration_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["intake_status"]
+          taken_at?: string
+          user_id: string
+        }
+        Update: {
+          dose_configuration_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["intake_status"]
+          taken_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_logs_dose_configuration_id_fkey"
+            columns: ["dose_configuration_id"]
+            isOneToOne: false
+            referencedRelation: "dose_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medication_groups: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          reminder_time: string | null
+          selection_rule: Database["public"]["Enums"]["selection_rule"]
+          time_frame: Database["public"]["Enums"]["time_frame"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          reminder_time?: string | null
+          selection_rule?: Database["public"]["Enums"]["selection_rule"]
+          time_frame: Database["public"]["Enums"]["time_frame"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          reminder_time?: string | null
+          selection_rule?: Database["public"]["Enums"]["selection_rule"]
+          time_frame?: Database["public"]["Enums"]["time_frame"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      medications: {
+        Row: {
+          color_background: string | null
+          color_left: string | null
+          color_right: string | null
+          created_at: string
+          custom_form_name: string | null
+          form: string
+          id: string
+          name: string
+          photo_url: string | null
+          shape: string | null
+          shape_line: boolean | null
+          strength: string
+          strength_unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color_background?: string | null
+          color_left?: string | null
+          color_right?: string | null
+          created_at?: string
+          custom_form_name?: string | null
+          form: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          shape?: string | null
+          shape_line?: boolean | null
+          strength: string
+          strength_unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color_background?: string | null
+          color_left?: string | null
+          color_right?: string | null
+          created_at?: string
+          custom_form_name?: string | null
+          form?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          shape?: string | null
+          shape_line?: boolean | null
+          strength?: string
+          strength_unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stock_sources: {
+        Row: {
+          added_at: string
+          expiry_date: string | null
+          id: string
+          medication_id: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          expiry_date?: string | null
+          id?: string
+          medication_id: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          expiry_date?: string | null
+          id?: string
+          medication_id?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_sources_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +239,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      intake_status: "taken" | "skipped" | "missed"
+      schedule_type: "everyday" | "specific_days" | "cyclical" | "as_needed"
+      selection_rule: "exactly_one" | "any"
+      time_frame: "morning" | "afternoon" | "evening" | "night"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +369,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      intake_status: ["taken", "skipped", "missed"],
+      schedule_type: ["everyday", "specific_days", "cyclical", "as_needed"],
+      selection_rule: ["exactly_one", "any"],
+      time_frame: ["morning", "afternoon", "evening", "night"],
+    },
   },
 } as const
