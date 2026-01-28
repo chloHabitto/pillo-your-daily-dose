@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Pill, Check, X } from "lucide-react";
+import { Check, ChevronRight, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Medicine {
@@ -15,102 +15,93 @@ interface MedicineCardProps {
   medicine: Medicine;
   onLog: (medicineId: string) => void;
   onSkip: (medicineId: string) => void;
+  onMore?: (medicineId: string) => void;
 }
 
 const pillColors: Record<string, string> = {
-  blue: "text-blue-500",
-  pink: "text-pink-500",
-  yellow: "text-amber-500",
-  green: "text-emerald-500",
-  purple: "text-purple-500",
+  blue: "bg-blue-100",
+  pink: "bg-pink-100",
+  yellow: "bg-amber-100",
+  green: "bg-emerald-100",
+  purple: "bg-purple-100",
 };
 
-export const MedicineCard = ({ medicine, onLog, onSkip }: MedicineCardProps) => {
-  const pillColor = pillColors[medicine.color || "blue"] || "text-primary";
+export const MedicineCard = ({ medicine, onLog, onSkip, onMore }: MedicineCardProps) => {
+  const pillBgColor = pillColors[medicine.color || "blue"] || "bg-primary-light";
   const isTaken = medicine.status === "taken";
   const isSkipped = medicine.status === "skipped";
   const isPending = medicine.status === "pending";
 
   return (
-    <div
-      className={cn(
-        "relative p-4 rounded-2xl transition-all duration-300 animate-fade-in",
-        isTaken
-          ? "bg-success-light border-2 border-success/30"
-          : isSkipped
-          ? "bg-muted/50 border-2 border-muted"
-          : "bg-card border-2 border-transparent shadow-soft"
-      )}
-    >
-      <div className="flex items-center gap-3">
-        {/* Pill Icon */}
+    <div className="relative p-4 rounded-2xl bg-card border border-border/50 shadow-soft animate-fade-in">
+      <div className="flex items-start gap-3">
+        {/* Pill Icon Placeholder */}
         <div className={cn(
-          "p-2.5 rounded-xl shrink-0",
-          isTaken ? "bg-success/20" : isSkipped ? "bg-muted" : "bg-primary-light"
-        )}>
-          {isTaken ? (
-            <Check className="w-5 h-5 text-success" />
-          ) : isSkipped ? (
-            <X className="w-5 h-5 text-muted-foreground" />
-          ) : (
-            <Pill className={cn("w-5 h-5", pillColor)} />
-          )}
-        </div>
+          "w-12 h-12 rounded-xl shrink-0",
+          pillBgColor
+        )} />
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h3 className={cn(
-            "font-bold text-lg truncate",
-            isTaken ? "text-success" : isSkipped ? "text-muted-foreground" : "text-foreground"
-          )}>
+          <h3 className="font-bold text-lg text-foreground truncate">
             {medicine.name}
           </h3>
           
-          {/* Dosage display */}
-          <p className={cn(
-            "text-sm",
-            isTaken ? "text-success/80" : isSkipped ? "text-muted-foreground" : "text-muted-foreground"
-          )}>
-            {isTaken && medicine.takenDosage
-              ? `${medicine.takenDosage} taken`
-              : isSkipped
-              ? "Skipped"
-              : medicine.dosages.join(" / ")}
-          </p>
+          {/* Action Buttons */}
+          <div className="flex gap-2 mt-2">
+            {isPending && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-4 rounded-full border-primary text-primary font-semibold hover:bg-primary/5"
+                  onClick={() => onLog(medicine.id)}
+                >
+                  Log as Taken
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-4 rounded-full border-border text-muted-foreground font-medium hover:bg-muted/50"
+                  onClick={() => onSkip(medicine.id)}
+                >
+                  Skip
+                </Button>
+              </>
+            )}
+
+            {isTaken && (
+              <Button
+                variant="default"
+                size="sm"
+                className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-semibold pointer-events-none"
+              >
+                <Check className="w-4 h-4 mr-1" />
+                Logged: {medicine.takenDosage}
+              </Button>
+            )}
+
+            {isSkipped && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 rounded-full border-border text-muted-foreground font-medium pointer-events-none"
+              >
+                <ChevronRight className="w-3 h-3 -mr-1" />
+                <ChevronRight className="w-3 h-3 mr-1" />
+                Skipped
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* Action Buttons */}
-        {isPending && (
-          <div className="flex gap-2 shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-foreground"
-              onClick={() => onSkip(medicine.id)}
-            >
-              Skip
-            </Button>
-            <Button
-              size="sm"
-              className="bg-success hover:bg-success/90 text-success-foreground"
-              onClick={() => onLog(medicine.id)}
-            >
-              Log
-            </Button>
-          </div>
-        )}
-
-        {/* Status badge for taken/skipped */}
-        {isTaken && (
-          <span className="text-xs font-medium text-success bg-success/10 px-2 py-1 rounded-full shrink-0">
-            ✓ Taken
-          </span>
-        )}
-        {isSkipped && (
-          <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full shrink-0">
-            Skipped
-          </span>
-        )}
+        {/* More Button */}
+        <button
+          onClick={() => onMore?.(medicine.id)}
+          className="p-1 -mr-1 -mt-1 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <MoreVertical className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );
