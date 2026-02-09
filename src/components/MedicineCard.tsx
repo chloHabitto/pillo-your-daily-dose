@@ -58,7 +58,7 @@ export const MedicineCard = ({ medicine, onLog, onSkip, onMore }: MedicineCardPr
                   Log as Taken
                 </button>
                 <button
-                  className="h-8 px-4 rounded-full border border-border text-muted-foreground text-sm font-medium hover:bg-muted/50 transition-colors"
+                  className="h-8 px-3 rounded-full border border-border text-muted-foreground text-xs font-medium hover:bg-muted/50 transition-colors"
                   onClick={() => onSkip(medicine.id)}
                 >
                   Skip
