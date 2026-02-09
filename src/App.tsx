@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import PillBox from "./pages/PillBox";
+import MedicationDetail from "./pages/MedicationDetail";
 import History from "./pages/History";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
@@ -22,6 +23,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/pillbox" element={<PillBox />} />
+            <Route path="/pillbox/:id" element={<MedicationDetail />} />
             <Route path="/history" element={<History />} />
             <Route path="/account" element={<Account />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
