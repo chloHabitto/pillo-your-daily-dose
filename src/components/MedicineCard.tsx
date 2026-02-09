@@ -51,46 +51,34 @@ export const MedicineCard = ({ medicine, onLog, onSkip, onMore }: MedicineCardPr
           <div className="flex gap-2 mt-2">
             {isPending && (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 px-4 rounded-full border-primary text-primary font-semibold hover:bg-primary/5"
+                <button
+                  className="h-8 px-4 rounded-full border-2 border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
                   onClick={() => onLog(medicine.id)}
                 >
                   Log as Taken
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 px-4 rounded-full border-border text-muted-foreground font-medium hover:bg-muted/50"
+                </button>
+                <button
+                  className="h-8 px-4 rounded-full border border-border text-muted-foreground text-sm font-medium hover:bg-muted/50 transition-colors"
                   onClick={() => onSkip(medicine.id)}
                 >
                   Skip
-                </Button>
+                </button>
               </>
             )}
 
             {isTaken && (
-              <Button
-                variant="default"
-                size="sm"
-                className="h-9 px-4 rounded-full bg-primary text-primary-foreground font-semibold pointer-events-none"
-              >
-                <Check className="w-4 h-4 mr-1" />
+              <div className="h-8 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold inline-flex items-center gap-1.5">
+                <Check className="w-4 h-4" />
                 Logged: {medicine.takenDosage}
-              </Button>
+              </div>
             )}
 
             {isSkipped && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-4 rounded-full border-border text-muted-foreground font-medium pointer-events-none"
-              >
-                <ChevronRight className="w-3 h-3 -mr-1" />
-                <ChevronRight className="w-3 h-3 mr-1" />
+              <div className="h-8 px-4 rounded-full border border-border text-muted-foreground text-sm font-medium inline-flex items-center gap-0.5">
+                <ChevronRight className="w-3.5 h-3.5 -mr-1" />
+                <ChevronRight className="w-3.5 h-3.5" />
                 Skipped
-              </Button>
+              </div>
             )}
           </div>
         </div>
