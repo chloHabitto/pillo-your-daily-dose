@@ -52,7 +52,7 @@ export const MedicineCard = ({ medicine, onLog, onSkip, onMore }: MedicineCardPr
             {isPending && (
               <>
                 <button
-                  className="h-8 px-4 rounded-full border-2 border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
+                  className="h-8 px-3 rounded-full border-2 border-primary text-primary text-xs font-semibold hover:bg-primary/5 transition-colors"
                   onClick={() => onLog(medicine.id)}
                 >
                   Log as Taken
