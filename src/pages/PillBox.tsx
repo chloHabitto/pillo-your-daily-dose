@@ -6,6 +6,7 @@ import { SwipeableCard } from "@/components/PillBox/SwipeableCard";
 import { AddMedicationFlow } from "@/components/PillBox/AddMedication";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Sample data - will be replaced with actual data management
 const initialMedications: MedicationGroup[] = [
@@ -59,6 +60,7 @@ const initialMedications: MedicationGroup[] = [
 const PillBox = () => {
   const [medications, setMedications] = useState<MedicationGroup[]>(initialMedications);
   const [isAddFlowOpen, setIsAddFlowOpen] = useState(false);
+  const navigate = useNavigate();
 
   const lowStockMeds = medications
     .filter((m) => m.hasLowStock)
@@ -69,8 +71,7 @@ const PillBox = () => {
   };
 
   const handleMedicationClick = (id: string) => {
-    // TODO: Navigate to medication detail view
-    console.log("Navigate to medication:", id);
+    navigate(`/pillbox/${id}`);
   };
 
   const handleAddMedication = () => {
