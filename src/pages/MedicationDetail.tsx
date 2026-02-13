@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MoreVertical, Plus, Calendar, Clock, Pill, Package, TrendingUp } from "lucide-react";
@@ -11,40 +12,84 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Sample data - will be replaced with actual data fetching
+// Types for multi-dosage support
+interface DosageData {
+  strength: string;
+  strengthUnit: string;
+  stock: {
+    total: number;
+    sources: { id: string; quantity: number; expiryDate: string; addedAt: string }[];
+  };
+  schedule: {
+    type: "everyday" | "specific_days" | "cyclical" | "as_needed";
+    timeFrames: string[];
+    dosingType: "fixed" | "flexible";
+    quantity: number;
+    startDate: string;
+    endDate: string | null;
+  };
+  intakeLogs: { id: string; date: string; time: string; status: "taken" | "skipped" | "missed" }[];
+}
+
+// Sample data with multiple dosages
 const sampleMedication = {
   id: "1",
   name: "Concerta",
   form: "Extended-Release Tablet",
-  strength: "18mg",
-  strengthUnit: "mg",
   shape: "oblong",
   colorLeft: "white",
   colorRight: null,
   colorBackground: "light-blue",
   showLine: true,
-  stock: {
-    total: 45,
-    sources: [
-      { id: "s1", quantity: 30, expiryDate: "2025-06-15", addedAt: "2025-01-10" },
-      { id: "s2", quantity: 15, expiryDate: "2025-08-20", addedAt: "2025-01-25" },
-    ],
-  },
-  schedule: {
-    type: "everyday" as const,
-    timeFrames: ["morning"],
-    dosingType: "fixed" as const,
-    quantity: 1,
-    startDate: "2024-12-01",
-    endDate: null,
-  },
-  intakeLogs: [
-    { id: "l1", date: "2025-02-09", time: "08:30", status: "taken" as const },
-    { id: "l2", date: "2025-02-08", time: "08:45", status: "taken" as const },
-    { id: "l3", date: "2025-02-07", time: "09:00", status: "skipped" as const },
-    { id: "l4", date: "2025-02-06", time: "08:15", status: "taken" as const },
-    { id: "l5", date: "2025-02-05", time: "08:30", status: "taken" as const },
-  ],
+  dosages: [
+    {
+      strength: "18",
+      strengthUnit: "mg",
+      stock: {
+        total: 30,
+        sources: [
+          { id: "s1", quantity: 30, expiryDate: "2025-06-15", addedAt: "2025-01-10" },
+        ],
+      },
+      schedule: {
+        type: "everyday" as const,
+        timeFrames: ["morning"],
+        dosingType: "fixed" as const,
+        quantity: 1,
+        startDate: "2024-12-01",
+        endDate: null,
+      },
+      intakeLogs: [
+        { id: "l1", date: "2025-02-09", time: "08:30", status: "taken" as const },
+        { id: "l2", date: "2025-02-08", time: "08:45", status: "taken" as const },
+        { id: "l3", date: "2025-02-07", time: "09:00", status: "skipped" as const },
+        { id: "l4", date: "2025-02-06", time: "08:15", status: "taken" as const },
+      ],
+    },
+    {
+      strength: "36",
+      strengthUnit: "mg",
+      stock: {
+        total: 15,
+        sources: [
+          { id: "s2", quantity: 15, expiryDate: "2025-08-20", addedAt: "2025-01-25" },
+        ],
+      },
+      schedule: {
+        type: "everyday" as const,
+        timeFrames: ["morning"],
+        dosingType: "fixed" as const,
+        quantity: 1,
+        startDate: "2025-01-15",
+        endDate: null,
+      },
+      intakeLogs: [
+        { id: "l5", date: "2025-02-09", time: "08:30", status: "taken" as const },
+        { id: "l6", date: "2025-02-08", time: "08:45", status: "taken" as const },
+        { id: "l7", date: "2025-02-05", time: "08:30", status: "taken" as const },
+      ],
+    },
+  ] as DosageData[],
 };
 
 const getBackgroundHex = (colorName: string): string => {
@@ -68,32 +113,21 @@ const formatTime = (timeStr: string) => {
 const MedicationDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-  // TODO: Fetch actual medication data based on id
   const medication = sampleMedication;
-  
-  const adherenceRate = Math.round(
-    (medication.intakeLogs.filter((l) => l.status === "taken").length / medication.intakeLogs.length) * 100
-  );
 
-  const handleBack = () => {
-    navigate("/pillbox");
-  };
+  const [selectedDosageIndex, setSelectedDosageIndex] = useState(0);
+  const activeDosage = medication.dosages[selectedDosageIndex];
 
-  const handleEdit = () => {
-    // TODO: Navigate to edit flow
-    console.log("Edit medication:", id);
-  };
+  const adherenceRate = activeDosage.intakeLogs.length > 0
+    ? Math.round(
+        (activeDosage.intakeLogs.filter((l) => l.status === "taken").length / activeDosage.intakeLogs.length) * 100
+      )
+    : 0;
 
-  const handleDelete = () => {
-    // TODO: Show delete confirmation
-    console.log("Delete medication:", id);
-  };
-
-  const handleAddStock = () => {
-    // TODO: Open add stock sheet
-    console.log("Add stock for:", id);
-  };
+  const handleBack = () => navigate("/pillbox");
+  const handleEdit = () => console.log("Edit medication:", id);
+  const handleDelete = () => console.log("Delete medication:", id);
+  const handleAddStock = () => console.log("Add stock for:", id);
 
   return (
     <div className="min-h-screen bg-background pb-40">
@@ -106,7 +140,7 @@ const MedicationDetail = () => {
           >
             <ArrowLeft className="w-6 h-6 text-foreground" />
           </button>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="p-2 -mr-2 rounded-xl hover:bg-muted/50 transition-colors">
@@ -114,19 +148,15 @@ const MedicationDetail = () => {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleEdit}>
-                Edit Medication
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-                Delete Medication
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleEdit}>Edit Medication</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDelete} className="text-destructive">Delete Medication</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
         {/* Medication Header */}
         <div className="flex items-center gap-4">
-          <div 
+          <div
             className="w-20 h-20 rounded-2xl flex items-center justify-center shrink-0"
             style={{ backgroundColor: getBackgroundHex(medication.colorBackground) }}
           >
@@ -142,14 +172,38 @@ const MedicationDetail = () => {
             <h1 className="text-2xl font-extrabold text-foreground truncate">
               {medication.name}
             </h1>
-            <p className="text-lg font-semibold text-primary">
-              {medication.strength}
-            </p>
             <p className="text-sm text-muted-foreground">
               {medication.form}
             </p>
           </div>
         </div>
+
+        {/* Dosage Chips */}
+        {medication.dosages.length > 1 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {medication.dosages.map((dosage, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedDosageIndex(index)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                  selectedDosageIndex === index
+                    ? "bg-primary text-primary-foreground shadow-soft"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                )}
+              >
+                {dosage.strength}{dosage.strengthUnit}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Single dosage: show strength inline */}
+        {medication.dosages.length === 1 && (
+          <p className="text-lg font-semibold text-primary mt-2">
+            {activeDosage.strength}{activeDosage.strengthUnit}
+          </p>
+        )}
       </header>
 
       {/* Content */}
@@ -160,6 +214,11 @@ const MedicationDetail = () => {
             <div className="flex items-center gap-2">
               <Package className="w-5 h-5 text-primary" />
               <h2 className="font-bold text-foreground">Stock</h2>
+              {medication.dosages.length > 1 && (
+                <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                  {activeDosage.strength}{activeDosage.strengthUnit}
+                </span>
+              )}
             </div>
             <button
               onClick={handleAddStock}
@@ -169,20 +228,20 @@ const MedicationDetail = () => {
               Add Stock
             </button>
           </div>
-          
+
           <div className="flex items-baseline gap-1 mb-3">
             <span className="text-3xl font-extrabold text-foreground">
-              {medication.stock.total}
+              {activeDosage.stock.total}
             </span>
             <span className="text-muted-foreground font-medium">
               {medication.form.toLowerCase().includes("tablet") ? "tablets" : "units"} remaining
             </span>
           </div>
 
-          {medication.stock.sources.length > 0 && (
+          {activeDosage.stock.sources.length > 0 && (
             <div className="space-y-2">
-              {medication.stock.sources.map((source) => (
-                <div 
+              {activeDosage.stock.sources.map((source) => (
+                <div
                   key={source.id}
                   className="flex items-center justify-between py-2 px-3 rounded-xl bg-muted/30"
                 >
@@ -210,51 +269,51 @@ const MedicationDetail = () => {
           <div className="flex items-center gap-2 mb-3">
             <Calendar className="w-5 h-5 text-primary" />
             <h2 className="font-bold text-foreground">Schedule</h2>
+            {medication.dosages.length > 1 && (
+              <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                {activeDosage.strength}{activeDosage.strengthUnit}
+              </span>
+            )}
           </div>
 
           <div className="space-y-3">
-            {/* Dosing Info */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary-light flex items-center justify-center">
                 <Pill className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-foreground">
-                  {medication.schedule.quantity} {medication.form.toLowerCase().includes("tablet") ? "tablet" : "dose"}
+                  {activeDosage.schedule.quantity} {medication.form.toLowerCase().includes("tablet") ? "tablet" : "dose"}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {medication.schedule.dosingType === "fixed" ? "Fixed dose" : "Flexible dosing"}
+                  {activeDosage.schedule.dosingType === "fixed" ? "Fixed dose" : "Flexible dosing"}
                 </p>
               </div>
             </div>
 
-            {/* Frequency */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-accent-foreground" />
               </div>
               <div>
                 <p className="font-semibold text-foreground capitalize">
-                  {medication.schedule.type.replace("_", " ")}
+                  {activeDosage.schedule.type.replace("_", " ")}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Since {formatDate(medication.schedule.startDate)}
+                  Since {formatDate(activeDosage.schedule.startDate)}
                 </p>
               </div>
             </div>
 
-            {/* Time Frames */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                 <Clock className="w-5 h-5 text-muted-foreground" />
               </div>
               <div>
                 <p className="font-semibold text-foreground capitalize">
-                  {medication.schedule.timeFrames.join(", ")}
+                  {activeDosage.schedule.timeFrames.join(", ")}
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  Time of day
-                </p>
+                <p className="text-sm text-muted-foreground">Time of day</p>
               </div>
             </div>
           </div>
@@ -268,7 +327,7 @@ const MedicationDetail = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <div 
+            <div
               className={cn(
                 "w-16 h-16 rounded-full flex items-center justify-center font-extrabold text-xl",
                 adherenceRate >= 80 ? "bg-accent/20 text-accent-foreground" :
@@ -280,11 +339,9 @@ const MedicationDetail = () => {
             </div>
             <div>
               <p className="font-semibold text-foreground">
-                {medication.intakeLogs.filter((l) => l.status === "taken").length} of {medication.intakeLogs.length} doses taken
+                {activeDosage.intakeLogs.filter((l) => l.status === "taken").length} of {activeDosage.intakeLogs.length} doses taken
               </p>
-              <p className="text-sm text-muted-foreground">
-                Last 7 days
-              </p>
+              <p className="text-sm text-muted-foreground">Last 7 days</p>
             </div>
           </div>
         </div>
@@ -293,7 +350,7 @@ const MedicationDetail = () => {
         <div className="p-4 rounded-2xl bg-card border border-border/50 shadow-soft">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-bold text-foreground">Recent History</h2>
-            <button 
+            <button
               onClick={() => navigate("/history")}
               className="text-sm text-primary font-semibold hover:underline"
             >
@@ -302,13 +359,10 @@ const MedicationDetail = () => {
           </div>
 
           <div className="space-y-2">
-            {medication.intakeLogs.slice(0, 5).map((log) => (
-              <div 
-                key={log.id}
-                className="flex items-center justify-between py-2"
-              >
+            {activeDosage.intakeLogs.slice(0, 5).map((log) => (
+              <div key={log.id} className="flex items-center justify-between py-2">
                 <div className="flex items-center gap-3">
-                  <div 
+                  <div
                     className={cn(
                       "w-2 h-2 rounded-full",
                       log.status === "taken" ? "bg-accent" : "bg-muted-foreground"
@@ -322,11 +376,11 @@ const MedicationDetail = () => {
                   <span className="text-sm text-muted-foreground">
                     {formatTime(log.time)}
                   </span>
-                  <span 
+                  <span
                     className={cn(
                       "text-xs font-semibold px-2 py-0.5 rounded-full",
-                      log.status === "taken" 
-                        ? "bg-accent/20 text-accent-foreground" 
+                      log.status === "taken"
+                        ? "bg-accent/20 text-accent-foreground"
                         : "bg-muted text-muted-foreground"
                     )}
                   >
